@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Curso</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #da2f18;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #e43636;
+        }
+        .lista-cursos {
+            margin-top: 20px;
+        }
+        .item-curso {
+            padding: 10px;
+            background-color: #f9f9f9;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .item-curso h3 {
+            margin: 0;
+        }
+        .item-curso p {
+            margin: 4px 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Cadastro de Curso</h1>
+
+    <form id="formCurso">
+        <label for="nomeCurso">Nome do Curso:</label>
+        <input type="text" id="nomeCurso" name="nomeCurso" required>
+
+        <label for="duracao">Duração:</label>
+        <input type="text" id="duracao" name="duracao" required>
+
+        <label for="coordenador">Coordenador:</label>
+        <input type="text" id="coordenador" name="coordenador" required>
+
+        <button type="submit">Cadastrar Curso</button>
+    </form>
+
+    <div class="lista-cursos" id="listaCursos">
+ 
+    </div>
+</div>
+
+<script>
+    document.getElementById("formCurso").addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        const nomeCurso = document.getElementById("nomeCurso").value;
+        const duracao = document.getElementById("duracao").value;
+        const coordenador = document.getElementById("coordenador").value;
+
+        // Criar o objeto do curso
+        const curso = {
+            nome: nomeCurso,
+            duracao: duracao,
+            coordenador: coordenador
+        };
+
+        // Obter cursos do local storage, ou iniciar um array vazio
+        const cursos = JSON.parse(localStorage.getItem("cursos")) || [];
+        
+        // Adicionar o novo curso ao array
+        cursos.push(curso);
+
+        // Salvar o array atualizado no local storage
+        localStorage.setItem("cursos", JSON.stringify(cursos));
+
+        // Adicionar o curso à lista exibida na página
+        adicionarCursoNaPagina(curso);
+
+        // Limpar o formulário
+        document.getElementById("formCurso").reset();
+    });
+
+    function adicionarCursoNaPagina(curso) {
+        const itemCurso = document.createElement("div");
+        itemCurso.classList.add("item-curso");
+
+        const tituloCurso = document.createElement("h3");
+        tituloCurso.textContent = curso.nome;
+
+        const duracaoCurso = document.createElement("p");
+        duracaoCurso.textContent = "Duração: " + curso.duracao;
+
+        const coordenadorCurso = document.createElement("p");
+        coordenadorCurso.textContent = "Coordenador: " + curso.coordenador;
+
+        itemCurso.appendChild(tituloCurso);
+        itemCurso.appendChild(duracaoCurso);
+        itemCurso.appendChild(coordenadorCurso);
+
+        document.getElementById("listaCursos").appendChild(itemCurso);
+    }
+
+    function carregarCursos() {
+        // Obter os cursos do local storage
+        const cursos = JSON.parse(localStorage.getItem("cursos")) || [];
+        
+        // Adicionar cada curso à página
+        cursos.forEach(adicionarCursoNaPagina);
+    }
+
+    // Carregar cursos ao iniciar a página
+    carregarCursos();
+</script>
+
+</body>
+</html>
