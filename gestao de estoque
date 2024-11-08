@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Estoque</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #db3030;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #bd3232;
+        }
+        .lista-produtos {
+            margin-top: 20px;
+        }
+        .item-produto {
+            padding: 10px;
+            background-color: #f9f9f9;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .item-produto h3 {
+            margin: 0;
+        }
+        .item-produto p {
+            margin: 4px 0;
+        }
+        .totais {
+            background-color: #b6b8cf;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 18px;
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Gestão de Estoque</h1>
+    
+    <!-- Totais movido para logo abaixo do título -->
+    <div class="totais" id="totais">
+        <p>Total de Produtos: 0</p>
+        <p>Quantidade Total: 0</p>
+        <p>Valor Total do Estoque: R$ 0,00</p>
+    </div>
+
+    <form id="formProduto">
+        <label for="nomeProduto">Nome do Produto:</label>
+        <input type="text" id="nomeProduto" name="nomeProduto" required>
+
+        <label for="categoria">Categoria:</label>
+        <input type="text" id="categoria" name="categoria" required>
+
+        <label for="quantidade">Quantidade:</label>
+        <input type="number" id="quantidade" name="quantidade" required>
+
+        <label for="preco">Preço:</label>
+        <input type="number" step="0.01" id="preco" name="preco" required>
+
+        <button type="submit">Cadastrar Produto</button>
+    </form>
+
+    <div class="lista-produtos" id="listaProdutos"></div>
+</div>
+
+<script>
+    let totalProdutos = 0;
+    let quantidadeTotal = 0;
+    let valorTotal = 0;
+
+    function atualizarTotais() {
+        document.getElementById("totais").innerHTML = `
+            <p>Total de Produtos: ${totalProdutos}</p>
+            <p>Quantidade Total: ${quantidadeTotal}</p>
+            <p>Valor Total do Estoque: R$ ${valorTotal.toFixed(2)}</p>
+        `;
+    }
+
+    function salvarEstoque() {
+        const produtos = {
+            totalProdutos,
+            quantidadeTotal,
+            valorTotal,
+            lista: Array.from(document.querySelectorAll('.item-produto')).map(produto => ({
+                nome: produto.querySelector('h3').textContent,
+                categoria: produto.querySelector('p:nth-child(2)').textContent.split(": ")[1],
+                quantidade: parseInt(produto.querySelector('p:nth-child(3)').textContent.split(": ")[1]),
+                preco: parseFloat(produto.querySelector('p:nth-child(4)').textContent.split(": ")[1].replace("R$ ", ""))
+            }))
+        };
+        localStorage.setItem("estoque", JSON.stringify(produtos));
+    }
+
+    function carregarEstoque() {
+        const dadosEstoque = JSON.parse(localStorage.getItem("estoque"));
+        if (dadosEstoque) {
+            totalProdutos = dadosEstoque.totalProdutos;
+            quantidadeTotal = dadosEstoque.quantidadeTotal;
+            valorTotal = dadosEstoque.valorTotal;
+            dadosEstoque.lista.forEach(produto => adicionarProdutoNaPagina(produto.nome, produto.categoria, produto.quantidade, produto.preco));
+            atualizarTotais();
+        }
+    }
+
+    function adicionarProdutoNaPagina(nome, categoria, quantidade, preco) {
+        const itemProduto = document.createElement("div");
+        itemProduto.classList.add("item-produto");
+
+        const tituloProduto = document.createElement("h3");
+        tituloProduto.textContent = nome;
+
+        const categoriaProduto = document.createElement("p");
+        categoriaProduto.textContent = "Categoria: " + categoria;
+
+        const quantidadeProduto = document.createElement("p");
+        quantidadeProduto.textContent = "Quantidade: " + quantidade;
+
+        const precoProduto = document.createElement("p");
+        precoProduto.textContent = "Preço: R$ " + preco.toFixed(2);
+
+        itemProduto.appendChild(tituloProduto);
+        itemProduto.appendChild(categoriaProduto);
+        itemProduto.appendChild(quantidadeProduto);
+        itemProduto.appendChild(precoProduto);
+
+        document.getElementById("listaProdutos").appendChild(itemProduto);
+    }
+
+    document.getElementById("formProduto").addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        const nomeProduto = document.getElementById("nomeProduto").value;
+        const categoria = document.getElementById("categoria").value;
+        const quantidade = parseInt(document.getElementById("quantidade").value);
+        const preco = parseFloat(document.getElementById("preco").value);
+
+        totalProdutos += 1;
+        quantidadeTotal += quantidade;
+        valorTotal += (quantidade * preco);
+
+        adicionarProdutoNaPagina(nomeProduto, categoria, quantidade, preco);
+        atualizarTotais();
+
+        salvarEstoque();
+
+        document.getElementById("formProduto").reset();
+    });
+
+    window.onload = carregarEstoque;
+</script>
+
+</body>
+</html>
