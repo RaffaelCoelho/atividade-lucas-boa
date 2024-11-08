@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Tarefas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #6280e2;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #3340b8;
+        }
+        .lista-de-tarefas {
+            margin-top: 20px;
+        }
+        .item-da-tarefa {
+            padding: 10px;
+            background-color: #f9f9f9;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .item-da-tarefa h3 {
+            margin: 0;
+        }
+        .item-da-tarefa button {
+            background-color: #1b8518;
+            padding: 5px 10px;
+            font-size: 12px;
+            cursor: pointer;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            width: auto;
+        }
+        .item-da-tarefa button:hover {
+            background-color: #d32f2f;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>Lista de Tarefas</h1>
+
+    <form id="formulario-tarefa">
+        <label for="nome-tarefa">Nome da Tarefa:</label>
+        <input type="text" id="nome-tarefa" name="nome-tarefa" required>
+
+        <button type="submit">Cadastrar Tarefa</button>
+    </form>
+
+    <div class="lista-de-tarefas" id="lista-de-tarefas"></div>
+</div>
+
+<script>
+    function salvarTarefas(tarefas) {
+        localStorage.setItem("tarefas", JSON.stringify(tarefas));
+    }
+
+    function carregarTarefas() {
+        const tarefas = JSON.parse(localStorage.getItem("tarefas")) || [];
+        tarefas.forEach(tarefa => adicionarTarefa(tarefa, false));
+    }
+
+    function adicionarTarefa(nomeTarefa, salvar = true) {
+        const itemTarefa = document.createElement("div");
+        itemTarefa.classList.add("item-da-tarefa");
+
+        const tituloTarefa = document.createElement("h3");
+        tituloTarefa.textContent = nomeTarefa;
+
+        const botaoRemover = document.createElement("button");
+        botaoRemover.textContent = "Remover";
+        botaoRemover.onclick = function () {
+            itemTarefa.remove();
+            removerTarefa(nomeTarefa);
+        };
+
+        itemTarefa.appendChild(tituloTarefa);
+        itemTarefa.appendChild(botaoRemover);
+
+        document.getElementById("lista-de-tarefas").appendChild(itemTarefa);
+
+        if (salvar) {
+            const tarefas = JSON.parse(localStorage.getItem("tarefas")) || [];
+            tarefas.push(nomeTarefa);
+            salvarTarefas(tarefas);
+        }
+    }
+
+    function removerTarefa(nomeTarefa) {
+        const tarefas = JSON.parse(localStorage.getItem("tarefas")) || [];
+        const tarefasAtualizadas = tarefas.filter(tarefa => tarefa !== nomeTarefa);
+        salvarTarefas(tarefasAtualizadas);
+    }
+
+    document.getElementById("formulario-tarefa").addEventListener("submit", function (evento) {
+        evento.preventDefault();
+
+        const nomeTarefa = document.getElementById("nome-tarefa").value;
+
+        adicionarTarefa(nomeTarefa);
+
+        document.getElementById("formulario-tarefa").reset();
+    });
+
+    window.onload = carregarTarefas;
+</script>
+
+</body>
+
+</html>
